@@ -83,7 +83,7 @@ A typical design session bounces between a font site, a palette generator, a con
 
 ### Mockup Studio
 
-- Print: **business card, letterhead, envelope, stickers, poster, merch (T-shirt and tote), a coffee cup, a shopping bag, a phone lock screen, an ID badge on a lanyard and a billboard**
+- Print: **business card, letterhead, envelope, stickers, poster, merch (T-shirt and tote), a coffee cup, a shopping bag, a delivery van, a phone lock screen, an ID badge on a lanyard and a billboard**
 - Devices: a **tablet** in landscape (dashboard) and portrait (mobile layout)
 - Screens: **landing page on a laptop, analytics dashboard on a desktop, three-screen mobile app, app store screenshots, a smartwatch and an email signature**, which also copies as an HTML signature for Gmail, Outlook or Apple Mail
 - Drawn as SVG from the live brand, in light or dark, with your fonts embedded so exports match the preview

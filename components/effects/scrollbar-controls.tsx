@@ -3,12 +3,14 @@
 import { Check, X } from "lucide-react";
 
 import { ColorField } from "@/components/effects/fields";
+import { useI18n } from "@/components/layout/locale-provider";
 import { Badge } from "@/components/ui/badge";
 import { SliderField } from "@/components/ui/field";
 import { SCROLLBAR_MIN_CONTRAST, scrollbarContrast } from "@/lib/effects/scrollbar";
 import { useEffectSettings, useEffectsStore } from "@/store/effects-store";
 
 export function ScrollbarControls() {
+  const { t } = useI18n();
   const s = useEffectSettings("scrollbar");
   const update = useEffectsStore((state) => state.update);
   const set = (patch: Partial<typeof s>) => update("scrollbar", patch);
@@ -18,11 +20,15 @@ export function ScrollbarControls() {
 
   return (
     <>
-      <ColorField label="Thumb" value={s.thumb} onChange={(thumb) => set({ thumb })} />
-      <ColorField label="Thumb on hover" value={s.thumbHover} onChange={(thumbHover) => set({ thumbHover })} />
-      <ColorField label="Track" value={s.track} onChange={(track) => set({ track })} />
+      <ColorField label={t("effects.scrollbar.thumb")} value={s.thumb} onChange={(thumb) => set({ thumb })} />
+      <ColorField
+        label={t("effects.scrollbar.thumbHover")}
+        value={s.thumbHover}
+        onChange={(thumbHover) => set({ thumbHover })}
+      />
+      <ColorField label={t("effects.scrollbar.track")} value={s.track} onChange={(track) => set({ track })} />
       <SliderField
-        label="Width"
+        label={t("effects.scrollbar.width")}
         value={s.width}
         min={4}
         max={20}
@@ -31,7 +37,7 @@ export function ScrollbarControls() {
         format={pxFormat}
       />
       <SliderField
-        label="Thumb radius"
+        label={t("effects.scrollbar.radius")}
         value={s.radius}
         min={0}
         max={10}
@@ -41,15 +47,17 @@ export function ScrollbarControls() {
       />
       <div className="flex flex-col gap-2 rounded-lg border p-3" role="status" aria-live="polite">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium">Thumb contrast (1.4.11)</span>
+          <span className="text-sm font-medium">{t("effects.scrollbar.check")}</span>
           <Badge variant={pass ? "success" : "destructive"}>
             {pass ? <Check aria-hidden /> : <X aria-hidden />}
-            {pass ? "Pass" : "Fail"}
+            {pass ? t("effects.result.pass") : t("effects.result.fail")}
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground">
-          Thumb against the track: {(Math.floor(ratio * 100) / 100).toFixed(2)}:1. At least {SCROLLBAR_MIN_CONTRAST}:1
-          is required.
+          {t("effects.scrollbar.ratio", {
+            ratio: `${(Math.floor(ratio * 100) / 100).toFixed(2)}:1`,
+            required: SCROLLBAR_MIN_CONTRAST,
+          })}
         </p>
       </div>
     </>

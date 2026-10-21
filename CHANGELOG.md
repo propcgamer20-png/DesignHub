@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Delivery van mockup in the Mockup Studio: the brand on the side of a van in side view, with the logo, name, website and phone number inside the flat part of the panel, a livery clipped to the body outline, and long names and contact lines shortened instead of clipped.
+- The Effects Lab picker, the shared gradient field and the focus ring, scrollbar and selection controls are translated into Spanish, French and Hindi. The contrast messages keep the ratio in a `{ratio}` placeholder.
 - Etsy shop banner template (3360 x 840) in the Social Media Studio, with a covered shop-icon zone and safe-area-aware content.
 
 - Compare original and optimized SVGs in the SVG Playground with an aligned, clipped preview and a keyboard- and touch-operable divider.

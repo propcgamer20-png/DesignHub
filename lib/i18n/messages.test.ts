@@ -44,6 +44,15 @@ describe("message catalogs", () => {
     }
   });
 
+  it("translates the Effects Lab picker, fields and contrast controls in every locale", () => {
+    const keys = Object.keys(en).filter((key) => key.startsWith("effects."));
+    expect(keys.length).toBeGreaterThan(40);
+    for (const locale of ["es", "fr", "hi"] as const) {
+      const missing = keys.filter((key) => !Object.hasOwn(catalogs[locale], key));
+      expect(missing, locale).toEqual([]);
+    }
+  });
+
   it("translates the Brand Studio and the home page in every locale", () => {
     const areas = ["brand.", "home.", "error.svg.", "error.tokens."];
     const keys = Object.keys(en).filter((key) => areas.some((area) => key.startsWith(area)));

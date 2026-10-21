@@ -7,6 +7,7 @@ import { effectControls } from "@/components/effects/controls-map";
 import { EffectOutput } from "@/components/effects/effect-output";
 import { EffectPicker } from "@/components/effects/effect-picker";
 import { EffectPreview } from "@/components/effects/effect-preview";
+import { useI18n } from "@/components/layout/locale-provider";
 import { StudioLayout } from "@/components/layout/studio-layout";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
@@ -15,6 +16,7 @@ import { generateEffect } from "@/lib/effects/registry";
 import { useEffectsStore } from "@/store/effects-store";
 
 export function EffectsWorkspace() {
+  const { t } = useI18n();
   const kind = useEffectsStore((state) => state.kind);
   const settings = useEffectsStore((state) => state.settings);
   const reset = useEffectsStore((state) => state.reset);
@@ -27,14 +29,19 @@ export function EffectsWorkspace() {
       id="effects"
       controls={
         <>
-          <Panel title="Effect">
+          <Panel title={t("effects.workspace.effect")}>
             <EffectPicker />
           </Panel>
           {Controls ? (
             <Panel
-              title="Controls"
+              title={t("effects.workspace.controls")}
               actions={
-                <Button variant="ghost" size="icon" aria-label="Reset effect" onClick={() => reset(kind)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("effects.workspace.reset")}
+                  onClick={() => reset(kind)}
+                >
                   <RotateCcw />
                 </Button>
               }

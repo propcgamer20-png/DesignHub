@@ -4,6 +4,7 @@ import { brandSurface } from "@/lib/brand/theme";
 import { buildBrandTokens } from "@/lib/brand/tokens";
 import { measureText } from "@/lib/logo/measure";
 import { getTemplate, mockupTemplates } from "@/lib/mockups/registry";
+import { VAN_ARCH_TOP, VAN_BODY, VAN_PANEL } from "@/lib/mockups/templates/delivery-van";
 import { watchFace, watchNotification } from "@/lib/mockups/templates/smartwatch";
 import { storeCaptions, captionLines } from "@/lib/mockups/templates/app-store";
 import { landingNav } from "@/lib/mockups/templates/laptop-landing";
@@ -328,5 +329,99 @@ describe("landing page nav", () => {
     for (const link of ["Product", "Pricing", "Docs", "Company"]) {
       expect(svg.includes(`>${link}</text>`)).toBe(nav.links.some((item) => item.label === link));
     }
+  });
+});
+
+describe("delivery van", () => {
+  const sixty = "Northwind Analytics Cooperative for Sustainable Data Systems";
+  const longWebsite = "northwindanalyticscooperativeforsustainabledatasystems.co.uk";
+  const longPhone = "+1 (555) 010-9999 ext. 4455 and then some more digits";
+
+  /** Every top-level <text>, measured the way the template measures. The nested logo is left out. */
+  function copy(ctx: MockupContext, svg: string) {
+    const flat = svg.replace(/<svg [^>]*preserveAspectRatio[\s\S]*?<\/svg>/g, "");
+    const { typography } = ctx.brand;
+    return [
+      ...flat.matchAll(/<text class="(h|b|bb)" x="([\d.]+)" y="([\d.]+)" font-size="(\d+)"[^>]*>([^<]*)<\/text>/g),
+    ].map(([, font, x, y, size, value]) => {
+      const family = font === "h" ? typography.heading : typography.body;
+      const weight = font === "h" ? typography.headingWeight : font === "bb" ? 600 : 400;
+      const start = Number(x);
+      return {
+        value: value!,
+        start,
+        end: start + ctx.measure(value!, family, weight, Number(size)),
+        baseline: Number(y),
+      };
+    });
+  }
+
+  test("is a Print mockup with the logo, name, website and phone number", () => {
+    const template = getTemplate("delivery-van")!;
+    expect(template.category).toBe("Print");
+    const ctx = mockupContext("light");
+    const withSite = { ...ctx, content: { ...ctx.content, website: "acme.com", phone: "+1 (555) 010-2030" } };
+    const svg = template.render(withSite);
+    const texts = copy(withSite, svg).map((item) => item.value);
+    expect(texts).toEqual([withSite.brand.name, "acme.com", "+1 (555) 010-2030"]);
+    expect(svg).toMatch(new RegExp(`<svg [^>]*width="116" height="116"[^>]* x="${VAN_PANEL.x}" y="${VAN_PANEL.y}"`));
+  });
+
+  test("the livery follows the body line: it is drawn inside a clip path of the body outline", () => {
+    for (const mode of modes) {
+      const ctx = mockupContext(mode);
+      const svg = getTemplate("delivery-van")!.render(ctx);
+      expect(svg).toContain(`<clipPath id="van-body"><path d="${VAN_BODY}"/></clipPath>`);
+      const clipped = svg.slice(svg.indexOf('<g clip-path="url(#van-body)">'));
+      const group = clipped.slice(0, clipped.indexOf("</g>"));
+      expect(group).toContain(`fill="${ctx.surface.primary}"`);
+      expect(group).toContain(`fill="${ctx.surface.secondary}"`);
+    }
+  });
+
+  test("the body outline has both wheel arches cut out of its lower edge", () => {
+    expect(VAN_BODY.match(/ A\d+ \d+ 0 0 0 /g)).toHaveLength(2);
+  });
+
+  test("the copy stays inside the flat part of the panel, above the wheel arches", () => {
+    expect(VAN_PANEL.y + VAN_PANEL.height).toBeLessThan(VAN_ARCH_TOP);
+    for (const mode of modes) {
+      const ctx = mockupContext(mode);
+      const svg = getTemplate("delivery-van")!.render({
+        ...ctx,
+        content: { ...ctx.content, website: "acme.com", phone: "+1 (555) 010-2030" },
+      });
+      for (const box of copy(ctx, svg)) {
+        expect(box.start, box.value).toBeGreaterThanOrEqual(VAN_PANEL.x);
+        expect(box.end, box.value).toBeLessThanOrEqual(VAN_PANEL.x + VAN_PANEL.width);
+        expect(box.baseline, box.value).toBeGreaterThan(VAN_PANEL.y);
+        expect(box.baseline, box.value).toBeLessThan(VAN_PANEL.y + VAN_PANEL.height);
+      }
+    }
+  });
+
+  test("a 60 character name, a long website and a long phone number are shortened, not clipped", () => {
+    for (const mode of modes) {
+      const ctx = mockupContext(mode, sixty);
+      const long = { ...ctx, content: { ...ctx.content, website: longWebsite, phone: longPhone } };
+      const boxes = copy(long, getTemplate("delivery-van")!.render(long));
+      expect(boxes).toHaveLength(3);
+      for (const box of boxes) {
+        expect(box.value.endsWith("..."), box.value).toBe(true);
+        expect(box.end, box.value).toBeLessThanOrEqual(VAN_PANEL.x + VAN_PANEL.width);
+      }
+    }
+  });
+
+  test("a short name and an empty website leave no empty line behind", () => {
+    const ctx = mockupContext("light", "Axe");
+    const svg = getTemplate("delivery-van")!.render({ ...ctx, content: { ...ctx.content, website: "" } });
+    const texts = copy(ctx, svg).map((item) => item.value);
+    expect(texts).toEqual(["Axe", ctx.content.phone]);
+    expect(texts.every((value) => value.trim() !== "")).toBe(true);
+  });
+
+  test("escapes the brand name", () => {
+    expect(xmlError(getTemplate("delivery-van")!.render(mockupContext("light", trickyName)))).toBeNull();
   });
 });
